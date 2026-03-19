@@ -2,13 +2,13 @@
 <html dir="rtl">
 <head>
     <meta charset="UTF-8">
-    <title>מערכת ניהול ופיקוח הנדסי - גרסת פרו</title>
+    <title>מערכת ניהול ופיקוח הנדסי - גרסת פרו + חיפוש</title>
     <style>
         body { font-family: 'Segoe UI', Arial, sans-serif; background-color: #f4f7f6; margin: 0; padding: 20px; }
         .container { max-width: 900px; margin: 0 auto; background: white; padding: 20px; border-radius: 8px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
         
         .tabs { display: flex; border-bottom: 2px solid #ddd; margin-bottom: 20px; flex-wrap: wrap; }
-        .tab-btn { background: none; border: none; padding: 12px 20px; cursor: pointer; font-size: 16px; font-weight: bold; color: #555; transition: 0.3s; }
+        .tab-btn { background: none; border: none; padding: 12px 15px; cursor: pointer; font-size: 16px; font-weight: bold; color: #555; transition: 0.3s; }
         .tab-btn:hover { background-color: #f8f9fa; }
         .tab-btn.active { border-bottom: 3px solid #007bff; color: #007bff; }
         .tab-content { display: none; }
@@ -22,6 +22,10 @@
         textarea { resize: vertical; min-height: 80px; }
         .section-title { margin-top: 25px; margin-bottom: 15px; border-bottom: 2px solid #007bff; padding-bottom: 5px; color: #007bff; font-size: 18px; display: flex; justify-content: space-between; align-items: center; }
         
+        /* עיצוב תיבת החיפוש */
+        .search-box { border: 2px solid #007bff; border-radius: 5px; padding: 12px; font-size: 16px; margin-bottom: 15px; box-shadow: inset 0 1px 3px rgba(0,0,0,0.1); transition: border-color 0.3s; }
+        .search-box:focus { outline: none; border-color: #0056b3; box-shadow: 0 0 5px rgba(0,123,255,0.5); }
+
         .radio-group { display: flex; gap: 20px; align-items: center; background: #f8f9fa; padding: 10px; border-radius: 5px; border: 1px solid #ddd; }
         .radio-group label { margin: 0; font-weight: normal; cursor: pointer; display: flex; align-items: center; gap: 5px; }
         .radio-group input { width: auto; }
@@ -34,7 +38,6 @@
         
         .dynamic-row { display: flex; align-items: center; margin-bottom: 10px; background: #f8f9fa; padding: 10px; border-radius: 5px; border: 1px solid #eee; }
         
-        /* אזור עריכת תמונות מרובות */
         .image-block { border: 2px dashed #ccc; padding: 15px; border-radius: 8px; margin-bottom: 15px; background: #fafafa; position: relative; }
         .image-block .remove-img-btn { position: absolute; top: 10px; left: 10px; background: #dc3545; color: white; border: none; padding: 5px 10px; border-radius: 4px; cursor: pointer; }
         .canvas-toolbar { background: #333; padding: 10px; border-radius: 5px; margin-top: 10px; color: white; display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
@@ -46,6 +49,7 @@
         tr:hover { background-color: #f1f1f1; cursor: pointer; }
         
         #loadingMsg { color: #007bff; font-weight: bold; text-align: center; display: none; margin-top: 15px; font-size: 18px; }
+        .existing-pdf-link { display: inline-block; margin-top: 10px; background: #ff5722; color: white; padding: 10px 15px; text-decoration: none; border-radius: 4px; font-weight: bold; }
     </style>
 </head>
 <body>
@@ -53,10 +57,12 @@
 <div class="container">
     <div class="tabs">
         <button class="tab-btn active" onclick="switchTab('formTab', this)">ניהול פרויקט</button>
-        <button class="tab-btn" onclick="switchTab('listTab', this); fetchProjects();">רשימת פרויקטים</button>
-        <button class="tab-btn" onclick="switchTab('reportTab', this); loadReportTab();">דוח פיקוח עליון</button>
+        <button class="tab-btn" onclick="switchTab('listTab', this); fetchAllData();">רשימת פרויקטים</button>
+        <button class="tab-btn" onclick="switchTab('reportTab', this); initNewReport();">דוח פיקוח חדש</button>
+        <button class="tab-btn" onclick="switchTab('reportListTab', this); fetchAllData();">רשימת דוחות</button>
     </div>
 
+    <!-- כרטסת 1: יצירת פרויקט -->
     <div id="formTab" class="tab-content active">
         <button class="add-btn" onclick="initNewProject()" style="background:#6c757d; margin-bottom:15px; padding:10px;">+ פרויקט חדש</button>
         <div class="form-grid">
@@ -73,16 +79,21 @@
         <button class="action-btn" id="submitProjBtn" onclick="saveProject()">שמור פרויקט</button>
     </div>
 
+    <!-- כרטסת 2: רשימת פרויקטים -->
     <div id="listTab" class="tab-content">
+        <!-- חיפוש פרויקטים -->
+        <input type="text" id="projectSearch" class="search-box" placeholder="🔍 חפש פרויקט, מיקום או מספר..." onkeyup="filterTable('projectSearch', 'projectsTable')">
+        
         <table id="projectsTable">
             <thead><tr><th>מספר פרויקט</th><th>שם הפרויקט</th><th>מיקום</th><th>עובדים</th></tr></thead>
             <tbody></tbody>
         </table>
     </div>
 
+    <!-- כרטסת 3: עריכת / יצירת דוח -->
     <div id="reportTab" class="tab-content">
         <div class="form-grid">
-            <div><label>מספר דוח (אוטומטי)</label><input type="text" id="repId" readonly></div>
+            <div><label>מספר דוח</label><input type="text" id="repId" readonly></div>
             <div><label>תאריך הבדיקה</label><input type="date" id="repDate"></div>
             
             <div class="full-width section-title">פרטי הבדיקה</div>
@@ -119,13 +130,14 @@
                 <button class="add-btn" onclick="addImageBlock()">+ הוסף תמונה חדשה</button>
             </div>
             
+            <div id="existingPdfContainer" class="full-width" style="display:none; text-align:center;"></div>
             <div id="imagesContainer" class="full-width"></div>
 
             <div class="full-width section-title">הגדרות סיום ושליחה</div>
             <div class="full-width" style="background:#e9f5ff; padding:15px; border-radius:5px; border:1px solid #b8daff;">
                 <label style="display:flex; align-items:center; gap:10px; cursor:pointer; font-size:16px;">
                     <input type="checkbox" id="sendEmailCheckbox" style="width:20px; height:20px;" checked>
-                    שמור דוח, ייצר PDF ושלח אוטומטית למייל של תפוצת הפרויקט (לכל העובדים)
+                    שמור דוח, עדכן PDF ושלח למייל של תפוצת הפרויקט
                 </label>
             </div>
         </div>
@@ -133,14 +145,28 @@
         <button class="action-btn" id="submitRepBtn" onclick="saveReport()">צור דוח, שמור PDF ושלח 📄✉️</button>
     </div>
 
-    <p id="loadingMsg">מעבד נתונים, שומר תמונות ויוצר PDF... זה עשוי לקחת מספר שניות ⏳</p>
+    <!-- כרטסת 4: רשימת דוחות -->
+    <div id="reportListTab" class="tab-content">
+        <h3>לחץ על דוח כדי לערוך אותו</h3>
+        
+        <!-- חיפוש דוחות -->
+        <input type="text" id="reportSearch" class="search-box" placeholder="🔍 חפש לפי פרויקט, אלמנט נבדק או תאריך..." onkeyup="filterTable('reportSearch', 'reportsTable')">
+        
+        <table id="reportsTable">
+            <thead><tr><th>מספר דוח</th><th>תאריך</th><th>שם פרויקט</th><th>אלמנט נבדק</th><th>קישור ל-PDF</th></tr></thead>
+            <tbody></tbody>
+        </table>
+    </div>
+
+    <p id="loadingMsg">מעבד נתונים... זה עשוי לקחת מספר שניות ⏳</p>
 </div>
 
 <script>
-    const scriptURL = 'https://script.google.com/macros/s/AKfycbwQYbr2gV9Y4MN94lpvi4zqxnAFL-CobC7yCzf3Ccsnx8hTcR1OtAdCmwBphaCLNEAsMg/exec'; // <--- חובה למלא!
+    const scriptURL = 'https://script.google.com/macros/s/AKfycbwQYbr2gV9Y4MN94lpvi4zqxnAFL-CobC7yCzf3Ccsnx8hTcR1OtAdCmwBphaCLNEAsMg/exec'; // חובה להדביק פה את ה-URL!
     let allProjects = [];
+    let allReports = [];
 
-    window.onload = () => { initNewProject(); initNewReport(); };
+    window.onload = () => { initNewProject(); initNewReport(); fetchAllData(); };
 
     function switchTab(tabId, btnElement) {
         document.querySelectorAll('.tab-content').forEach(tab => tab.classList.remove('active'));
@@ -150,7 +176,78 @@
     }
 
     // ==========================================
-    // קוד פרויקטים (ללא שינוי מהותי)
+    // מערכת סינון חכמה לטבלאות (החלק החדש!)
+    // ==========================================
+    function filterTable(inputId, tableId) {
+        const input = document.getElementById(inputId);
+        const filter = input.value.toLowerCase();
+        const table = document.getElementById(tableId);
+        const tr = table.getElementsByTagName('tr');
+
+        // מתחילים מ-1 כדי לדלג על שורת הכותרות (th)
+        for (let i = 1; i < tr.length; i++) {
+            let rowText = tr[i].textContent.toLowerCase();
+            if (rowText.includes(filter)) {
+                tr[i].style.display = "";
+            } else {
+                tr[i].style.display = "none";
+            }
+        }
+    }
+
+    // ==========================================
+    // משיכת כל הנתונים (פרויקטים + דוחות)
+    // ==========================================
+    async function fetchAllData() {
+        document.querySelector('#projectsTable tbody').innerHTML = '<tr><td colspan="4">טוען...</td></tr>';
+        document.querySelector('#reportsTable tbody').innerHTML = '<tr><td colspan="5">טוען...</td></tr>';
+        
+        try {
+            const res = await fetch(scriptURL);
+            const data = await res.json();
+            
+            allProjects = data.projects || [];
+            allReports = data.reports || [];
+            
+            const select = document.getElementById('repProject');
+            select.innerHTML = '<option value="">-- בחר פרויקט --</option>';
+            allProjects.forEach(p => { select.innerHTML += `<option value="${p.name}">${p.name}</option>`; });
+            
+            const pTbody = document.querySelector('#projectsTable tbody');
+            pTbody.innerHTML = '';
+            if(allProjects.length === 0) pTbody.innerHTML = '<tr><td colspan="4">אין פרויקטים</td></tr>';
+            allProjects.forEach(p => {
+                const tr = document.createElement('tr');
+                tr.innerHTML = `<td>${p.id}</td><td>${p.name}</td><td>${p.location}</td><td>${p.workers ? p.workers.length : 0}</td>`;
+                pTbody.appendChild(tr);
+            });
+
+            const rTbody = document.querySelector('#reportsTable tbody');
+            rTbody.innerHTML = '';
+            if(allReports.length === 0) rTbody.innerHTML = '<tr><td colspan="5">אין דוחות להצגה</td></tr>';
+            allReports.forEach((r, idx) => {
+                const tr = document.createElement('tr');
+                tr.onclick = (e) => { 
+                    if(e.target.tagName !== 'A') loadReportForEdit(idx); 
+                };
+                tr.innerHTML = `
+                    <td>${r.id}</td><td>${new Date(r.date).toLocaleDateString()}</td><td>${r.projectName}</td><td>${r.element}</td>
+                    <td><a href="${r.pdfLink}" target="_blank" style="color:#ff5722; font-weight:bold;">📄 צפה ב-PDF</a></td>
+                `;
+                rTbody.appendChild(tr);
+            });
+            
+        } 
+        catch(e) {
+            console.error("Error fetching data", e);
+            alert("הייתה בעיה למשוך את הנתונים מגוגל:\n" + e.message + "\n\n(ודא שהגדרת 'Anyone' בפריסה, ושהקישור מעודכן)");
+            document.querySelector('#projectsTable tbody').innerHTML = '<tr><td colspan="4">שגיאה בטעינת הנתונים</td></tr>';
+            document.querySelector('#reportsTable tbody').innerHTML = '<tr><td colspan="5">שגיאה בטעינת הנתונים</td></tr>';
+        }
+    }
+
+    // ==========================================
+    // ניהול פרויקטים
     // ==========================================
     function initNewProject() {
         document.querySelectorAll('#formTab input').forEach(inp => inp.value = '');
@@ -181,42 +278,68 @@
         });
         await sendData({ action: 'save_project', id: document.getElementById('projId').value, date: document.getElementById('projDate').value, name: name, location: document.getElementById('projLocation').value, entrepreneur: document.getElementById('projEntrepreneur').value, engineer: document.getElementById('projEngineer').value, workers: workers });
         initNewProject();
-    }
-
-    async function fetchProjects() {
-        try {
-            const res = await fetch(scriptURL);
-            allProjects = await res.json();
-            const tbody = document.querySelector('#projectsTable tbody');
-            tbody.innerHTML = '';
-            allProjects.forEach(p => {
-                const tr = document.createElement('tr');
-                tr.innerHTML = `<td>${p.id}</td><td>${p.name}</td><td>${p.location}</td><td>${p.workers ? p.workers.length : 0}</td>`;
-                tbody.appendChild(tr);
-            });
-        } catch(e) {}
+        fetchAllData();
     }
 
     // ==========================================
-    // קוד דוח פיקוח עם תמונות מרובות
+    // קוד דוח פיקוח
     // ==========================================
-    async function loadReportTab() {
-        initNewReport();
-        if(allProjects.length === 0) await fetchProjects();
-        const select = document.getElementById('repProject');
-        select.innerHTML = '<option value="">-- בחר פרויקט (טוען רשימת תפוצה אוטומטית) --</option>';
-        allProjects.forEach(p => { select.innerHTML += `<option value="${p.name}">${p.name}</option>`; });
-    }
-
     function initNewReport() {
         document.getElementById('repId').value = "REP-" + Date.now();
         document.getElementById('repDate').valueAsDate = new Date();
-        document.querySelectorAll('#reportTab input[type="text"]:not([readonly]), #reportTab textarea').forEach(inp => inp.value = '');
+        document.getElementById('repProject').value = "";
+        document.getElementById('repElement').value = "";
+        document.getElementById('repInspector').value = "";
+        document.getElementById('repSummary').value = "";
         document.getElementById('attendeesContainer').innerHTML = '';
         document.getElementById('remarksContainer').innerHTML = '';
         document.getElementById('descriptionsContainer').innerHTML = '';
-        document.getElementById('imagesContainer').innerHTML = ''; // איפוס תמונות
+        document.getElementById('imagesContainer').innerHTML = ''; 
+        document.getElementById('existingPdfContainer').style.display = 'none';
+        
+        document.getElementsByName('inspectionType')[0].checked = true; 
+        
         addDynamicField('attendeesContainer', 'שם הנוכח');
+        document.getElementById('submitRepBtn').innerText = "צור דוח, שמור PDF ושלח 📄✉️";
+    }
+
+    function loadReportForEdit(index) {
+        const r = allReports[index];
+        document.getElementById('repId').value = r.id;
+        if(r.date) document.getElementById('repDate').valueAsDate = new Date(r.date);
+        
+        document.getElementById('repProject').value = r.projectName;
+        document.getElementById('repElement').value = r.element;
+        document.getElementById('repInspector').value = r.inspector;
+        document.getElementById('repSummary').value = r.summary;
+        
+        document.getElementsByName('inspectionType').forEach(radio => {
+            if(radio.value === r.inspectionType) radio.checked = true;
+        });
+
+        document.getElementById('attendeesContainer').innerHTML = '';
+        document.getElementById('remarksContainer').innerHTML = '';
+        document.getElementById('descriptionsContainer').innerHTML = '';
+        
+        try {
+            const att = JSON.parse(r.attendees);
+            if(att && att.length > 0) att.forEach(val => restoreDynamicField('attendeesContainer', val, 'שם הנוכח')); else addDynamicField('attendeesContainer', 'שם הנוכח');
+            
+            const rem = JSON.parse(r.remarks);
+            if(rem && rem.length > 0) rem.forEach(val => restoreDynamicField('remarksContainer', val, 'הערה'));
+            
+            const des = JSON.parse(r.descriptions);
+            if(des && des.length > 0) des.forEach(val => restoreDynamicField('descriptionsContainer', val, 'תיאור'));
+        } catch(e) {}
+
+        document.getElementById('imagesContainer').innerHTML = ''; 
+        const pdfContainer = document.getElementById('existingPdfContainer');
+        pdfContainer.style.display = 'block';
+        pdfContainer.innerHTML = `<p style="color:#666; margin-bottom:5px;">דוח זה כבר מכיל תמונות שנשמרו ב-PDF. <br>אם תוסיף תמונות חדשות עכשיו, הן יישמרו ויחליפו את הישנות במסמך המעודכן.</p>
+                                  <a href="${r.pdfLink}" target="_blank" class="existing-pdf-link">📄 צפה ב-PDF הקיים</a>`;
+
+        document.getElementById('submitRepBtn').innerText = "עדכן דוח קיים ושמור PDF 🔄";
+        switchTab('reportTab', document.querySelectorAll('.tab-btn')[2]);
     }
 
     function addDynamicField(containerId, placeholder) {
@@ -227,13 +350,20 @@
         document.getElementById(containerId).appendChild(div);
     }
 
+    function restoreDynamicField(containerId, value, placeholder) {
+        const div = document.createElement('div');
+        div.className = 'dynamic-row';
+        div.innerHTML = `<input type="text" class="dyn-val" placeholder="${placeholder}" value="${value}" style="flex:1;">
+                         <button class="remove-btn" onclick="this.parentElement.remove()">X</button>`;
+        document.getElementById(containerId).appendChild(div);
+    }
+
     function collectDynamic(containerId) {
         return Array.from(document.querySelectorAll(`#${containerId} .dyn-val`)).map(inp => inp.value.trim()).filter(v => v);
     }
 
     // --- מערכת תמונות מרובות ---
     let imageCounter = 0;
-    
     function addImageBlock() {
         imageCounter++;
         const blockId = 'imgBlock_' + imageCounter;
@@ -255,8 +385,6 @@
             </div>
         `;
         document.getElementById('imagesContainer').appendChild(div);
-        
-        // אתחול מצב ציור
         div.dataset.mode = 'draw'; 
     }
 
@@ -272,15 +400,12 @@
         reader.onload = function(e) {
             const img = new Image();
             img.onload = () => {
-                // שומר על הגודל המקורי של התמונה הפנימית!
                 canvas.width = img.width;
                 canvas.height = img.height;
                 ctx.drawImage(img, 0, 0);
-                
-                // שומר עותק נקי ל-UNDO
                 block.dataset.originalImg = canvas.toDataURL(); 
                 block.querySelector('.canvas-area').style.display = 'block';
-                inputElem.style.display = 'none'; // מסתיר את כפתור ההעלאה אחרי שנטען
+                inputElem.style.display = 'none';
                 setupCanvasEvents(block);
             };
             img.src = e.target.result;
@@ -288,14 +413,10 @@
         reader.readAsDataURL(file);
     }
 
-    function setCanvasMode(blockId, mode) {
-        document.getElementById(blockId).dataset.mode = mode;
-    }
-
+    function setCanvasMode(blockId, mode) { document.getElementById(blockId).dataset.mode = mode; }
     function undoCanvas(blockId) {
         const block = document.getElementById(blockId);
-        const canvas = block.querySelector('canvas');
-        const ctx = canvas.getContext('2d');
+        const ctx = block.querySelector('canvas').getContext('2d');
         const img = new Image();
         img.onload = () => ctx.drawImage(img, 0, 0);
         img.src = block.dataset.originalImg;
@@ -310,8 +431,6 @@
             const mode = block.dataset.mode;
             const color = block.querySelector('.color-picker').value;
             const width = block.querySelector('.line-width').value;
-            
-            // חישוב קנה מידה (בגלל שה-CSS מקטין את הקנבס, צריך למצוא את המיקום האמיתי)
             const rect = canvas.getBoundingClientRect();
             const scaleX = canvas.width / rect.width;
             const scaleY = canvas.height / rect.height;
@@ -339,9 +458,8 @@
             const rect = canvas.getBoundingClientRect();
             const x = (e.clientX - rect.left) * (canvas.width / rect.width);
             const y = (e.clientY - rect.top) * (canvas.height / rect.height);
-            
             ctx.strokeStyle = color;
-            ctx.lineWidth = width * 2; // מכיוון שהתמונה גדולה צריך עובי מוגבר
+            ctx.lineWidth = width * 2; 
             ctx.lineCap = 'round';
             ctx.lineTo(x, y);
             ctx.stroke();
@@ -356,30 +474,23 @@
         const projName = document.getElementById('repProject').value;
         if(!projName) return alert("חובה לבחור פרויקט!");
 
-        // מציאת הרדיו הנבחר
         let selectedInspectionType = '';
         document.getElementsByName('inspectionType').forEach(r => { if(r.checked) selectedInspectionType = r.value; });
 
-        // מציאת הנמענים של הפרויקט מתוך הנתונים שנשמרו
         const projectData = allProjects.find(p => p.name === projName);
         let emails = [];
-        if(projectData && projectData.workers) {
-            emails = projectData.workers.map(w => w.email);
-        }
+        if(projectData && projectData.workers) emails = projectData.workers.map(w => w.email);
 
-        // איסוף כל התמונות שעלו
         const imagesB64 = [];
         document.querySelectorAll('.image-block canvas').forEach(c => {
-            if(c.width > 0) { // מוודא שיש תמונה
-                imagesB64.push(c.toDataURL("image/png").split(',')[1]);
-            }
+            if(c.width > 0) imagesB64.push(c.toDataURL("image/png").split(',')[1]);
         });
 
         const payload = {
             action: 'save_report',
             reportId: document.getElementById('repId').value,
             date: document.getElementById('repDate').value,
-            inspectionType: selectedInspectionType, // רדיו בוטון
+            inspectionType: selectedInspectionType, 
             projectName: projName,
             element: document.getElementById('repElement').value,
             inspector: document.getElementById('repInspector').value,
@@ -387,13 +498,14 @@
             remarks: collectDynamic('remarksContainer'),
             descriptions: collectDynamic('descriptionsContainer'),
             summary: document.getElementById('repSummary').value,
-            images: imagesB64, // שולח מערך של תמונות!
+            images: imagesB64, 
             sendEmail: document.getElementById('sendEmailCheckbox').checked,
-            distributionList: emails // שולח את רשימת המיילים
+            distributionList: emails 
         };
 
         await sendData(payload);
         initNewReport();
+        fetchAllData(); 
     }
 
     async function sendData(payload) {
