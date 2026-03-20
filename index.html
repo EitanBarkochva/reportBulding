@@ -2,13 +2,14 @@
 <html dir="rtl">
 <head>
     <meta charset="UTF-8">
-    <title>מערכת ניהול ופיקוח הנדסי - גרסת פרו + חיפוש</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>מערכת ניהול ופיקוח הנדסי</title>
     <style>
-        body { font-family: 'Segoe UI', Arial, sans-serif; background-color: #f4f7f6; margin: 0; padding: 20px; }
+        body { font-family: 'Segoe UI', Arial, sans-serif; background-color: #f4f7f6; margin: 0; padding: 10px; }
         .container { max-width: 900px; margin: 0 auto; background: white; padding: 20px; border-radius: 8px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
         
         .tabs { display: flex; border-bottom: 2px solid #ddd; margin-bottom: 20px; flex-wrap: wrap; }
-        .tab-btn { background: none; border: none; padding: 12px 15px; cursor: pointer; font-size: 16px; font-weight: bold; color: #555; transition: 0.3s; }
+        .tab-btn { background: none; border: none; padding: 12px 15px; cursor: pointer; font-size: 16px; font-weight: bold; color: #555; transition: 0.3s; flex: 1; text-align: center; }
         .tab-btn:hover { background-color: #f8f9fa; }
         .tab-btn.active { border-bottom: 3px solid #007bff; color: #007bff; }
         .tab-content { display: none; }
@@ -17,39 +18,47 @@
         .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
         .full-width { grid-column: 1 / -1; }
         label { display: block; font-weight: bold; margin-bottom: 5px; font-size: 14px; color: #333; }
-        input, select, textarea { width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box; font-family: inherit; }
+        input, select, textarea { width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box; font-family: inherit; font-size: 16px; }
         input[readonly] { background-color: #e9ecef; color: #666; cursor: not-allowed; }
         textarea { resize: vertical; min-height: 80px; }
-        .section-title { margin-top: 25px; margin-bottom: 15px; border-bottom: 2px solid #007bff; padding-bottom: 5px; color: #007bff; font-size: 18px; display: flex; justify-content: space-between; align-items: center; }
+        .section-title { margin-top: 25px; margin-bottom: 15px; border-bottom: 2px solid #007bff; padding-bottom: 5px; color: #007bff; font-size: 18px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px;}
         
-        /* עיצוב תיבת החיפוש */
-        .search-box { border: 2px solid #007bff; border-radius: 5px; padding: 12px; font-size: 16px; margin-bottom: 15px; box-shadow: inset 0 1px 3px rgba(0,0,0,0.1); transition: border-color 0.3s; }
-        .search-box:focus { outline: none; border-color: #0056b3; box-shadow: 0 0 5px rgba(0,123,255,0.5); }
-
-        .radio-group { display: flex; gap: 20px; align-items: center; background: #f8f9fa; padding: 10px; border-radius: 5px; border: 1px solid #ddd; }
-        .radio-group label { margin: 0; font-weight: normal; cursor: pointer; display: flex; align-items: center; gap: 5px; }
-        .radio-group input { width: auto; }
+        .search-box { border: 2px solid #007bff; border-radius: 5px; padding: 12px; font-size: 16px; margin-bottom: 15px; width: 100%; box-sizing: border-box; }
+        .radio-group { display: flex; gap: 20px; align-items: center; background: #f8f9fa; padding: 10px; border-radius: 5px; border: 1px solid #ddd; flex-wrap: wrap; }
+        .radio-group label { margin: 0; cursor: pointer; display: flex; align-items: center; gap: 5px; }
 
         button { cursor: pointer; border-radius: 4px; border: none; font-family: inherit; transition: 0.2s; }
-        .action-btn { background-color: #28a745; color: white; padding: 12px 20px; font-size: 16px; margin-top: 20px; width: 100%; font-weight: bold; }
+        .action-btn { background-color: #28a745; color: white; padding: 15px; font-size: 18px; margin-top: 20px; width: 100%; font-weight: bold; }
         .action-btn:hover { background-color: #218838; }
-        .add-btn { background-color: #007bff; color: white; padding: 6px 12px; font-size: 14px; margin-top: 5px; }
-        .remove-btn { background-color: #dc3545; color: white; padding: 10px; margin-right: 10px; }
+        .add-btn { background-color: #007bff; color: white; padding: 8px 12px; font-size: 14px; margin-top: 5px; }
+        .remove-btn { background-color: #dc3545; color: white; padding: 10px; margin-right: 10px; min-width: 40px; }
         
-        .dynamic-row { display: flex; align-items: center; margin-bottom: 10px; background: #f8f9fa; padding: 10px; border-radius: 5px; border: 1px solid #eee; }
-        
+        .dynamic-row { display: flex; align-items: center; margin-bottom: 10px; background: #f8f9fa; padding: 10px; border-radius: 5px; border: 1px solid #eee; gap: 10px; flex-wrap: wrap;}
+        .dynamic-row input { flex: 1; min-width: 100px; margin: 0 !important; }
+
         .image-block { border: 2px dashed #ccc; padding: 15px; border-radius: 8px; margin-bottom: 15px; background: #fafafa; position: relative; }
         .image-block .remove-img-btn { position: absolute; top: 10px; left: 10px; background: #dc3545; color: white; border: none; padding: 5px 10px; border-radius: 4px; cursor: pointer; }
         .canvas-toolbar { background: #333; padding: 10px; border-radius: 5px; margin-top: 10px; color: white; display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
-        canvas { border: 1px solid #007bff; cursor: crosshair; display: block; margin-top: 10px; max-width: 100%; height: auto; }
+        canvas { border: 1px solid #007bff; cursor: crosshair; display: block; margin-top: 10px; max-width: 100%; height: auto; touch-action: none; background: white; }
         
-        table { width: 100%; border-collapse: collapse; margin-top: 10px; }
+        #signatureCanvas { border: 2px dashed #666; background: #fffdf2; max-width: 400px; width: 100%; height: 200px; margin: 0 auto; cursor: crosshair; touch-action: none; border-radius: 8px;}
+
+        .table-responsive { width: 100%; overflow-x: auto; -webkit-overflow-scrolling: touch; }
+        table { width: 100%; border-collapse: collapse; margin-top: 10px; min-width: 600px; }
         th, td { border: 1px solid #ddd; padding: 12px; text-align: right; }
         th { background-color: #007bff; color: white; }
         tr:hover { background-color: #f1f1f1; cursor: pointer; }
         
         #loadingMsg { color: #007bff; font-weight: bold; text-align: center; display: none; margin-top: 15px; font-size: 18px; }
         .existing-pdf-link { display: inline-block; margin-top: 10px; background: #ff5722; color: white; padding: 10px 15px; text-decoration: none; border-radius: 4px; font-weight: bold; }
+
+        @media (max-width: 768px) {
+            .form-grid { grid-template-columns: 1fr; }
+            .tab-btn { flex: 1 1 100%; border-bottom: 1px solid #ddd; border-radius: 0; }
+            .dynamic-row { flex-direction: column; align-items: stretch; }
+            .remove-btn { width: 100%; margin-right: 0; margin-top: 5px; }
+            .container { padding: 15px; }
+        }
     </style>
 </head>
 <body>
@@ -64,7 +73,7 @@
 
     <!-- כרטסת 1: יצירת פרויקט -->
     <div id="formTab" class="tab-content active">
-        <button class="add-btn" onclick="initNewProject()" style="background:#6c757d; margin-bottom:15px; padding:10px;">+ פרויקט חדש</button>
+        <button class="add-btn" onclick="initNewProject()" style="background:#6c757d; margin-bottom:15px; padding:10px; width: 100%;">+ פרויקט חדש / נקה טופס</button>
         <div class="form-grid">
             <div><label>מספר פרויקט</label><input type="text" id="projId" readonly></div>
             <div><label>תאריך יצירה</label><input type="date" id="projDate" readonly></div>
@@ -73,7 +82,7 @@
             <div><label>מיקום</label><input type="text" id="projLocation"></div>
             <div><label>יזם</label><input type="text" id="projEntrepreneur"></div>
             <div><label>מהנדס</label><input type="text" id="projEngineer"></div>
-            <div class="full-width section-title">צוות הפרויקט (רשימת תפוצה) <button class="add-btn" onclick="addWorkerRow()">+ הוסף עובד</button></div>
+            <div class="full-width section-title">צוות הפרויקט <button class="add-btn" onclick="addWorkerRow()">+ הוסף עובד</button></div>
         </div>
         <div id="workersContainer"></div>
         <button class="action-btn" id="submitProjBtn" onclick="saveProject()">שמור פרויקט</button>
@@ -81,13 +90,13 @@
 
     <!-- כרטסת 2: רשימת פרויקטים -->
     <div id="listTab" class="tab-content">
-        <!-- חיפוש פרויקטים -->
-        <input type="text" id="projectSearch" class="search-box" placeholder="🔍 חפש פרויקט, מיקום או מספר..." onkeyup="filterTable('projectSearch', 'projectsTable')">
-        
-        <table id="projectsTable">
-            <thead><tr><th>מספר פרויקט</th><th>שם הפרויקט</th><th>מיקום</th><th>עובדים</th></tr></thead>
-            <tbody></tbody>
-        </table>
+        <input type="text" id="projectSearch" class="search-box" placeholder="🔍 חפש פרויקט..." onkeyup="filterTable('projectSearch', 'projectsTable')">
+        <div class="table-responsive">
+            <table id="projectsTable">
+                <thead><tr><th>מספר פרויקט</th><th>שם הפרויקט</th><th>מיקום</th><th>עובדים</th></tr></thead>
+                <tbody></tbody>
+            </table>
+        </div>
     </div>
 
     <!-- כרטסת 3: עריכת / יצירת דוח -->
@@ -125,19 +134,23 @@
             <div class="full-width section-title">סיכום הדוח</div>
             <div class="full-width"><textarea id="repSummary" placeholder="כתוב כאן את סיכום הבדיקה..."></textarea></div>
 
-            <div class="full-width section-title">
-                תיעוד ותמונות 
-                <button class="add-btn" onclick="addImageBlock()">+ הוסף תמונה חדשה</button>
-            </div>
+            <div class="full-width section-title">תיעוד ותמונות <button class="add-btn" onclick="addImageBlock()">+ הוסף תמונה חדשה</button></div>
             
             <div id="existingPdfContainer" class="full-width" style="display:none; text-align:center;"></div>
             <div id="imagesContainer" class="full-width"></div>
+
+            <!-- אזור החתימה הדיגיטלית -->
+            <div class="full-width section-title">חתימת הבודק</div>
+            <div class="full-width" style="text-align: center;">
+                <canvas id="signatureCanvas" width="400" height="200"></canvas><br>
+                <button class="add-btn" style="background:#dc3545;" onclick="clearSignature()">מחק חתימה ונסה שוב</button>
+            </div>
 
             <div class="full-width section-title">הגדרות סיום ושליחה</div>
             <div class="full-width" style="background:#e9f5ff; padding:15px; border-radius:5px; border:1px solid #b8daff;">
                 <label style="display:flex; align-items:center; gap:10px; cursor:pointer; font-size:16px;">
                     <input type="checkbox" id="sendEmailCheckbox" style="width:20px; height:20px;" checked>
-                    שמור דוח, עדכן PDF ושלח למייל של תפוצת הפרויקט
+                    שמור דוח, עדכן PDF ושלח למייל של הצוות
                 </label>
             </div>
         </div>
@@ -148,25 +161,25 @@
     <!-- כרטסת 4: רשימת דוחות -->
     <div id="reportListTab" class="tab-content">
         <h3>לחץ על דוח כדי לערוך אותו</h3>
-        
-        <!-- חיפוש דוחות -->
         <input type="text" id="reportSearch" class="search-box" placeholder="🔍 חפש לפי פרויקט, אלמנט נבדק או תאריך..." onkeyup="filterTable('reportSearch', 'reportsTable')">
         
-        <table id="reportsTable">
-            <thead><tr><th>מספר דוח</th><th>תאריך</th><th>שם פרויקט</th><th>אלמנט נבדק</th><th>קישור ל-PDF</th></tr></thead>
-            <tbody></tbody>
-        </table>
+        <div class="table-responsive">
+            <table id="reportsTable">
+                <thead><tr><th>מספר דוח</th><th>תאריך</th><th>שם פרויקט</th><th>אלמנט נבדק</th><th>קישור ל-PDF</th></tr></thead>
+                <tbody></tbody>
+            </table>
+        </div>
     </div>
 
-    <p id="loadingMsg">מעבד נתונים... זה עשוי לקחת מספר שניות ⏳</p>
+    <p id="loadingMsg">מעבד נתונים... פעולה זו עשויה לקחת מספר שניות ⏳</p>
 </div>
 
 <script>
-    const scriptURL = 'https://script.google.com/macros/s/AKfycbxST1VAYy03uKXfCPzA6xTj5rpJLRIn3XSrJclSYb8JwBxjofUd2U26pbz_3-kRNTXsRA/exec'; // חובה להדביק פה את ה-URL!
+    const scriptURL = 'https://script.google.com/macros/s/AKfycbxST1VAYy03uKXfCPzA6xTj5rpJLRIn3XSrJclSYb8JwBxjofUd2U26pbz_3-kRNTXsRA/exec'; // <-- חובה להדביק פה!
     let allProjects = [];
     let allReports = [];
 
-    window.onload = () => { initNewProject(); initNewReport(); fetchAllData(); };
+    window.onload = () => { initNewProject(); initNewReport(); fetchAllData(); setupSignatureCanvas(); };
 
     function switchTab(tabId, btnElement) {
         document.querySelectorAll('.tab-content').forEach(tab => tab.classList.remove('active'));
@@ -175,75 +188,114 @@
         btnElement.classList.add('active');
     }
 
-    // ==========================================
-    // מערכת סינון חכמה לטבלאות (החלק החדש!)
-    // ==========================================
     function filterTable(inputId, tableId) {
         const input = document.getElementById(inputId);
         const filter = input.value.toLowerCase();
         const table = document.getElementById(tableId);
         const tr = table.getElementsByTagName('tr');
-
-        // מתחילים מ-1 כדי לדלג על שורת הכותרות (th)
         for (let i = 1; i < tr.length; i++) {
             let rowText = tr[i].textContent.toLowerCase();
-            if (rowText.includes(filter)) {
-                tr[i].style.display = "";
-            } else {
-                tr[i].style.display = "none";
-            }
+            tr[i].style.display = rowText.includes(filter) ? "" : "none";
         }
     }
 
     // ==========================================
-    // משיכת כל הנתונים (פרויקטים + דוחות)
+    // חתימה דיגיטלית - קוד לזיהוי מגע ועכבר
     // ==========================================
-  async function fetchAllData() {
+    let isSigned = false;
+    
+    function setupSignatureCanvas() {
+        const sigCanvas = document.getElementById('signatureCanvas');
+        const sigCtx = sigCanvas.getContext('2d');
+        let isSigning = false;
+
+        function getSigPos(e) {
+            const rect = sigCanvas.getBoundingClientRect();
+            const scaleX = sigCanvas.width / rect.width;
+            const scaleY = sigCanvas.height / rect.height;
+            let clientX = e.clientX;
+            let clientY = e.clientY;
+            if (e.touches && e.touches.length > 0) {
+                clientX = e.touches[0].clientX;
+                clientY = e.touches[0].clientY;
+            }
+            return { x: (clientX - rect.left) * scaleX, y: (clientY - rect.top) * scaleY };
+        }
+
+        function startSig(e) {
+            isSigning = true;
+            isSigned = true;
+            const pos = getSigPos(e);
+            sigCtx.beginPath();
+            sigCtx.moveTo(pos.x, pos.y);
+            if(e.cancelable) e.preventDefault(); // מונע גלילה בפלאפון כשחותמים
+        }
+
+        function drawSig(e) {
+            if(!isSigning) return;
+            const pos = getSigPos(e);
+            sigCtx.strokeStyle = "#000080"; // צבע כחול-עט
+            sigCtx.lineWidth = 3;
+            sigCtx.lineCap = 'round';
+            sigCtx.lineTo(pos.x, pos.y);
+            sigCtx.stroke();
+            if(e.cancelable) e.preventDefault();
+        }
+
+        function stopSig() { isSigning = false; }
+
+        sigCanvas.addEventListener('mousedown', startSig);
+        sigCanvas.addEventListener('mousemove', drawSig);
+        sigCanvas.addEventListener('mouseup', stopSig);
+        sigCanvas.addEventListener('mouseout', stopSig);
+
+        sigCanvas.addEventListener('touchstart', startSig, { passive: false });
+        sigCanvas.addEventListener('touchmove', drawSig, { passive: false });
+        sigCanvas.addEventListener('touchend', stopSig);
+    }
+
+    function clearSignature() {
+        const sigCanvas = document.getElementById('signatureCanvas');
+        const sigCtx = sigCanvas.getContext('2d');
+        sigCtx.clearRect(0, 0, sigCanvas.width, sigCanvas.height);
+        isSigned = false;
+    }
+
+    // ==========================================
+    // משיכת נתונים
+    // ==========================================
+    async function fetchAllData() {
         document.querySelector('#projectsTable tbody').innerHTML = '<tr><td colspan="4">טוען נתונים מהשרת...</td></tr>';
         document.querySelector('#reportsTable tbody').innerHTML = '<tr><td colspan="5">טוען נתונים מהשרת...</td></tr>';
         
         try {
-            // הנה הטריק: אנחנו משתמשים ב-POST כדי למשוך את הנתונים, בדיוק כמו בשמירה!
-            const res = await fetch(scriptURL, { 
-                method: 'POST', 
-                body: JSON.stringify({ action: 'get_all_data' }), 
-                headers: { 'Content-Type': 'text/plain;charset=utf-8' }
-            });
-            
+            const res = await fetch(scriptURL, { method: 'POST', body: JSON.stringify({ action: 'get_all_data' }), headers: { 'Content-Type': 'text/plain;charset=utf-8' } });
             if (!res.ok) throw new Error("תקלת רשת");
             
             const data = await res.json();
-            
             allProjects = data.projects || [];
             allReports = data.reports || [];
             
-            // מילוי תיבת בחירת פרויקטים
             const select = document.getElementById('repProject');
             select.innerHTML = '<option value="">-- בחר פרויקט --</option>';
             allProjects.forEach(p => { select.innerHTML += `<option value="${p.name}">${p.name}</option>`; });
             
-            // מילוי טבלת פרויקטים
-            // מילוי טבלת פרויקטים
             const pTbody = document.querySelector('#projectsTable tbody');
             pTbody.innerHTML = '';
             if(allProjects.length === 0) pTbody.innerHTML = '<tr><td colspan="4">אין פרויקטים</td></tr>';
             allProjects.forEach((p, idx) => {
                 const tr = document.createElement('tr');
-                // הנה התוספת - לחיצה על השורה מעבירה לעריכה!
-                tr.onclick = () => loadProjectForEdit(idx); 
+                tr.onclick = () => loadProjectForEdit(idx);
                 tr.innerHTML = `<td>${p.id}</td><td>${p.name}</td><td>${p.location}</td><td>${p.workers ? p.workers.length : 0}</td>`;
                 pTbody.appendChild(tr);
             });
 
-            // מילוי טבלת דוחות
             const rTbody = document.querySelector('#reportsTable tbody');
             rTbody.innerHTML = '';
             if(allReports.length === 0) rTbody.innerHTML = '<tr><td colspan="5">אין דוחות להצגה</td></tr>';
             allReports.forEach((r, idx) => {
                 const tr = document.createElement('tr');
-                tr.onclick = (e) => { 
-                    if(e.target.tagName !== 'A') loadReportForEdit(idx); 
-                };
+                tr.onclick = (e) => { if(e.target.tagName !== 'A') loadReportForEdit(idx); };
                 tr.innerHTML = `
                     <td>${r.id}</td><td>${new Date(r.date).toLocaleDateString()}</td><td>${r.projectName}</td><td>${r.element}</td>
                     <td><a href="${r.pdfLink}" target="_blank" style="color:#ff5722; font-weight:bold;">📄 צפה ב-PDF</a></td>
@@ -252,13 +304,14 @@
             });
             
         } catch(e) {
-            console.error("Error fetching data", e);
-            document.querySelector('#projectsTable tbody').innerHTML = '<tr><td colspan="4" style="color:red;">שגיאה בטעינה. ודא שעשית New Version.</td></tr>';
-            document.querySelector('#reportsTable tbody').innerHTML = '<tr><td colspan="5" style="color:red;">שגיאה בטעינה. ודא שעשית New Version.</td></tr>';
+            console.error(e);
+            document.querySelector('#projectsTable tbody').innerHTML = '<tr><td colspan="4" style="color:red;">שגיאה בטעינה.</td></tr>';
+            document.querySelector('#reportsTable tbody').innerHTML = '<tr><td colspan="5" style="color:red;">שגיאה בטעינה.</td></tr>';
         }
     }
+
     // ==========================================
-    // ניהול פרויקטים
+    // ניהול ועריכת פרויקטים
     // ==========================================
     function initNewProject() {
         document.querySelectorAll('#formTab input').forEach(inp => inp.value = '');
@@ -266,8 +319,10 @@
         document.getElementById('projDate').valueAsDate = new Date();
         document.getElementById('workersContainer').innerHTML = '';
         addWorkerRow();
+        document.getElementById('submitProjBtn').innerText = "שמור פרויקט";
     }
-function loadProjectForEdit(index) {
+
+    function loadProjectForEdit(index) {
         const p = allProjects[index];
         document.getElementById('projId').value = p.id;
         if(p.date) document.getElementById('projDate').valueAsDate = new Date(p.date);
@@ -276,26 +331,22 @@ function loadProjectForEdit(index) {
         document.getElementById('projEntrepreneur').value = p.entrepreneur || '';
         document.getElementById('projEngineer').value = p.engineer || '';
 
-        // שחזור העובדים (הצוות) אל תוך הטופס
         document.getElementById('workersContainer').innerHTML = '';
         if (p.workers && p.workers.length > 0) {
             p.workers.forEach(w => addWorkerRow(w.name, w.role, w.email));
-        } else {
-            addWorkerRow(); // אם אין עובדים, שם שורה ריקה
-        }
+        } else { addWorkerRow(); }
 
         document.getElementById('submitProjBtn').innerText = "עדכן פרויקט קיים 🔄";
-        // העברה אוטומטית לכרטיסיית ניהול הפרויקט
         switchTab('formTab', document.querySelectorAll('.tab-btn')[0]); 
     }
-    
+
     function addWorkerRow(name='', role='', email='') {
         const div = document.createElement('div');
         div.className = 'dynamic-row';
         div.innerHTML = `
-            <input type="text" class="w-name" placeholder="שם" value="${name}" style="flex:1; margin-left:10px;">
-            <input type="text" class="w-role" placeholder="תפקיד" value="${role}" style="flex:1; margin-left:10px;">
-            <input type="email" class="w-email" placeholder="אימייל" value="${email}" style="flex:1;">
+            <input type="text" class="w-name" placeholder="שם" value="${name}">
+            <input type="text" class="w-role" placeholder="תפקיד" value="${role}">
+            <input type="email" class="w-email" placeholder="אימייל" value="${email}">
             <button class="remove-btn" onclick="this.parentElement.remove()">X</button>
         `;
         document.getElementById('workersContainer').appendChild(div);
@@ -329,8 +380,9 @@ function loadProjectForEdit(index) {
         document.getElementById('imagesContainer').innerHTML = ''; 
         document.getElementById('existingPdfContainer').style.display = 'none';
         
+        clearSignature(); // איפוס חתימה
+
         document.getElementsByName('inspectionType')[0].checked = true; 
-        
         addDynamicField('attendeesContainer', 'שם הנוכח');
         document.getElementById('submitRepBtn').innerText = "צור דוח, שמור PDF ושלח 📄✉️";
     }
@@ -356,10 +408,8 @@ function loadProjectForEdit(index) {
         try {
             const att = JSON.parse(r.attendees);
             if(att && att.length > 0) att.forEach(val => restoreDynamicField('attendeesContainer', val, 'שם הנוכח')); else addDynamicField('attendeesContainer', 'שם הנוכח');
-            
             const rem = JSON.parse(r.remarks);
             if(rem && rem.length > 0) rem.forEach(val => restoreDynamicField('remarksContainer', val, 'הערה'));
-            
             const des = JSON.parse(r.descriptions);
             if(des && des.length > 0) des.forEach(val => restoreDynamicField('descriptionsContainer', val, 'תיאור'));
         } catch(e) {}
@@ -367,9 +417,10 @@ function loadProjectForEdit(index) {
         document.getElementById('imagesContainer').innerHTML = ''; 
         const pdfContainer = document.getElementById('existingPdfContainer');
         pdfContainer.style.display = 'block';
-        pdfContainer.innerHTML = `<p style="color:#666; margin-bottom:5px;">דוח זה כבר מכיל תמונות שנשמרו ב-PDF. <br>אם תוסיף תמונות חדשות עכשיו, הן יישמרו ויחליפו את הישנות במסמך המעודכן.</p>
+        pdfContainer.innerHTML = `<p style="color:#666; margin-bottom:5px;">דוח זה כבר מכיל תמונות וחתימה שנשמרו ב-PDF. <br>אם תוסיף חדשות עכשיו, הן יישמרו ויחליפו את הישנות במסמך המעודכן.</p>
                                   <a href="${r.pdfLink}" target="_blank" class="existing-pdf-link">📄 צפה ב-PDF הקיים</a>`;
 
+        clearSignature();
         document.getElementById('submitRepBtn').innerText = "עדכן דוח קיים ושמור PDF 🔄";
         switchTab('reportTab', document.querySelectorAll('.tab-btn')[2]);
     }
@@ -377,7 +428,7 @@ function loadProjectForEdit(index) {
     function addDynamicField(containerId, placeholder) {
         const div = document.createElement('div');
         div.className = 'dynamic-row';
-        div.innerHTML = `<input type="text" class="dyn-val" placeholder="${placeholder}" style="flex:1;">
+        div.innerHTML = `<input type="text" class="dyn-val" placeholder="${placeholder}">
                          <button class="remove-btn" onclick="this.parentElement.remove()">X</button>`;
         document.getElementById(containerId).appendChild(div);
     }
@@ -385,7 +436,7 @@ function loadProjectForEdit(index) {
     function restoreDynamicField(containerId, value, placeholder) {
         const div = document.createElement('div');
         div.className = 'dynamic-row';
-        div.innerHTML = `<input type="text" class="dyn-val" placeholder="${placeholder}" value="${value}" style="flex:1;">
+        div.innerHTML = `<input type="text" class="dyn-val" placeholder="${placeholder}" value="${value}">
                          <button class="remove-btn" onclick="this.parentElement.remove()">X</button>`;
         document.getElementById(containerId).appendChild(div);
     }
@@ -394,7 +445,9 @@ function loadProjectForEdit(index) {
         return Array.from(document.querySelectorAll(`#${containerId} .dyn-val`)).map(inp => inp.value.trim()).filter(v => v);
     }
 
-    // --- מערכת תמונות מרובות ---
+    // ==========================================
+    // מערכת תמונות מרובות
+    // ==========================================
     let imageCounter = 0;
     function addImageBlock() {
         imageCounter++;
@@ -404,7 +457,7 @@ function loadProjectForEdit(index) {
         div.id = blockId;
         div.innerHTML = `
             <button class="remove-img-btn" onclick="document.getElementById('${blockId}').remove()">הסר תמונה</button>
-            <input type="file" accept="image/*" onchange="loadImageToCanvas(this, '${blockId}')">
+            <input type="file" accept="image/*" onchange="loadImageToCanvas(this, '${blockId}')" style="margin-top:40px;">
             <div class="canvas-area" style="display:none;">
                 <div class="canvas-toolbar">
                     צבע: <input type="color" class="color-picker" value="#ff0000">
@@ -438,7 +491,7 @@ function loadProjectForEdit(index) {
                 block.dataset.originalImg = canvas.toDataURL(); 
                 block.querySelector('.canvas-area').style.display = 'block';
                 inputElem.style.display = 'none';
-                setupCanvasEvents(block);
+                setupResponsiveCanvasEvents(block);
             };
             img.src = e.target.result;
         }
@@ -454,54 +507,62 @@ function loadProjectForEdit(index) {
         img.src = block.dataset.originalImg;
     }
 
-    function setupCanvasEvents(block) {
+    function setupResponsiveCanvasEvents(block) {
         const canvas = block.querySelector('canvas');
         const ctx = canvas.getContext('2d');
         let isDrawing = false;
 
-        canvas.onmousedown = (e) => {
-            const mode = block.dataset.mode;
-            const color = block.querySelector('.color-picker').value;
-            const width = block.querySelector('.line-width').value;
+        function getPointerPos(e) {
             const rect = canvas.getBoundingClientRect();
             const scaleX = canvas.width / rect.width;
             const scaleY = canvas.height / rect.height;
-            const x = (e.clientX - rect.left) * scaleX;
-            const y = (e.clientY - rect.top) * scaleY;
+            let clientX = e.clientX, clientY = e.clientY;
+            if (e.touches && e.touches.length > 0) { clientX = e.touches[0].clientX; clientY = e.touches[0].clientY; }
+            return { x: (clientX - rect.left) * scaleX, y: (clientY - rect.top) * scaleY };
+        }
 
-            if(mode === 'text') {
+        function startDraw(e) {
+            if(block.dataset.mode === 'text') {
+                const pos = getPointerPos(e);
                 const txt = prompt("הכנס טקסט:");
                 if(txt) {
-                    ctx.fillStyle = color;
+                    ctx.fillStyle = block.querySelector('.color-picker').value;
+                    const width = block.querySelector('.line-width').value;
                     ctx.font = `${width * 15}px Arial`;
-                    ctx.fillText(txt, x, y);
+                    ctx.fillText(txt, pos.x, pos.y);
                 }
             } else {
                 isDrawing = true;
+                const pos = getPointerPos(e);
                 ctx.beginPath();
-                ctx.moveTo(x, y);
+                ctx.moveTo(pos.x, pos.y);
             }
-        };
+            if(e.cancelable) e.preventDefault();
+        }
 
-        canvas.onmousemove = (e) => {
+        function doDraw(e) {
             if(!isDrawing || block.dataset.mode === 'text') return;
-            const color = block.querySelector('.color-picker').value;
-            const width = block.querySelector('.line-width').value;
-            const rect = canvas.getBoundingClientRect();
-            const x = (e.clientX - rect.left) * (canvas.width / rect.width);
-            const y = (e.clientY - rect.top) * (canvas.height / rect.height);
-            ctx.strokeStyle = color;
-            ctx.lineWidth = width * 2; 
+            const pos = getPointerPos(e);
+            ctx.strokeStyle = block.querySelector('.color-picker').value;
+            ctx.lineWidth = block.querySelector('.line-width').value * 2; 
             ctx.lineCap = 'round';
-            ctx.lineTo(x, y);
+            ctx.lineTo(pos.x, pos.y);
             ctx.stroke();
-        };
+            if(e.cancelable) e.preventDefault();
+        }
 
-        canvas.onmouseup = () => isDrawing = false;
-        canvas.onmouseout = () => isDrawing = false;
+        function stopDraw() { isDrawing = false; }
+
+        canvas.addEventListener('mousedown', startDraw);
+        canvas.addEventListener('mousemove', doDraw);
+        canvas.addEventListener('mouseup', stopDraw);
+        canvas.addEventListener('mouseout', stopDraw);
+        canvas.addEventListener('touchstart', startDraw, { passive: false });
+        canvas.addEventListener('touchmove', doDraw, { passive: false });
+        canvas.addEventListener('touchend', stopDraw);
     }
 
-    // --- שמירת דוח, PDF ושליחת מייל ---
+    // --- שמירת דוח ושליחה ---
     async function saveReport() {
         const projName = document.getElementById('repProject').value;
         if(!projName) return alert("חובה לבחור פרויקט!");
@@ -518,6 +579,8 @@ function loadProjectForEdit(index) {
             if(c.width > 0) imagesB64.push(c.toDataURL("image/png").split(',')[1]);
         });
 
+        const sigCanvas = document.getElementById('signatureCanvas');
+
         const payload = {
             action: 'save_report',
             reportId: document.getElementById('repId').value,
@@ -531,6 +594,7 @@ function loadProjectForEdit(index) {
             descriptions: collectDynamic('descriptionsContainer'),
             summary: document.getElementById('repSummary').value,
             images: imagesB64, 
+            signature: isSigned ? sigCanvas.toDataURL("image/png").split(',')[1] : null, // שליחת החתימה אם קיימת
             sendEmail: document.getElementById('sendEmailCheckbox').checked,
             distributionList: emails 
         };
@@ -542,6 +606,7 @@ function loadProjectForEdit(index) {
 
     async function sendData(payload) {
         document.getElementById('loadingMsg').style.display = 'block';
+        window.scrollTo(0, 0); 
         try {
             const response = await fetch(scriptURL, { 
                 method: 'POST', body: JSON.stringify(payload), headers: { 'Content-Type': 'text/plain;charset=utf-8' }
