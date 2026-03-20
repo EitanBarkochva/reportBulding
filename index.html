@@ -162,7 +162,7 @@
 </div>
 
 <script>
-    const scriptURL = 'https://script.google.com/macros/s/AKfycbwQYbr2gV9Y4MN94lpvi4zqxnAFL-CobC7yCzf3Ccsnx8hTcR1OtAdCmwBphaCLNEAsMg/exec'; // חובה להדביק פה את ה-URL!
+    const scriptURL = 'https://script.google.com/macros/s/AKfycbxST1VAYy03uKXfCPzA6xTj5rpJLRIn3XSrJclSYb8JwBxjofUd2U26pbz_3-kRNTXsRA/exec'; // חובה להדביק פה את ה-URL!
     let allProjects = [];
     let allReports = [];
 
@@ -198,30 +198,44 @@
     // ==========================================
     // משיכת כל הנתונים (פרויקטים + דוחות)
     // ==========================================
-    async function fetchAllData() {
-        document.querySelector('#projectsTable tbody').innerHTML = '<tr><td colspan="4">טוען...</td></tr>';
-        document.querySelector('#reportsTable tbody').innerHTML = '<tr><td colspan="5">טוען...</td></tr>';
+  async function fetchAllData() {
+        document.querySelector('#projectsTable tbody').innerHTML = '<tr><td colspan="4">טוען נתונים מהשרת...</td></tr>';
+        document.querySelector('#reportsTable tbody').innerHTML = '<tr><td colspan="5">טוען נתונים מהשרת...</td></tr>';
         
         try {
-            const res = await fetch(scriptURL);
+            // הנה הטריק: אנחנו משתמשים ב-POST כדי למשוך את הנתונים, בדיוק כמו בשמירה!
+            const res = await fetch(scriptURL, { 
+                method: 'POST', 
+                body: JSON.stringify({ action: 'get_all_data' }), 
+                headers: { 'Content-Type': 'text/plain;charset=utf-8' }
+            });
+            
+            if (!res.ok) throw new Error("תקלת רשת");
+            
             const data = await res.json();
             
             allProjects = data.projects || [];
             allReports = data.reports || [];
             
+            // מילוי תיבת בחירת פרויקטים
             const select = document.getElementById('repProject');
             select.innerHTML = '<option value="">-- בחר פרויקט --</option>';
             allProjects.forEach(p => { select.innerHTML += `<option value="${p.name}">${p.name}</option>`; });
             
+            // מילוי טבלת פרויקטים
+            // מילוי טבלת פרויקטים
             const pTbody = document.querySelector('#projectsTable tbody');
             pTbody.innerHTML = '';
             if(allProjects.length === 0) pTbody.innerHTML = '<tr><td colspan="4">אין פרויקטים</td></tr>';
-            allProjects.forEach(p => {
+            allProjects.forEach((p, idx) => {
                 const tr = document.createElement('tr');
+                // הנה התוספת - לחיצה על השורה מעבירה לעריכה!
+                tr.onclick = () => loadProjectForEdit(idx); 
                 tr.innerHTML = `<td>${p.id}</td><td>${p.name}</td><td>${p.location}</td><td>${p.workers ? p.workers.length : 0}</td>`;
                 pTbody.appendChild(tr);
             });
 
+            // מילוי טבלת דוחות
             const rTbody = document.querySelector('#reportsTable tbody');
             rTbody.innerHTML = '';
             if(allReports.length === 0) rTbody.innerHTML = '<tr><td colspan="5">אין דוחות להצגה</td></tr>';
@@ -237,15 +251,12 @@
                 rTbody.appendChild(tr);
             });
             
-        } 
-        catch(e) {
+        } catch(e) {
             console.error("Error fetching data", e);
-            alert("הייתה בעיה למשוך את הנתונים מגוגל:\n" + e.message + "\n\n(ודא שהגדרת 'Anyone' בפריסה, ושהקישור מעודכן)");
-            document.querySelector('#projectsTable tbody').innerHTML = '<tr><td colspan="4">שגיאה בטעינת הנתונים</td></tr>';
-            document.querySelector('#reportsTable tbody').innerHTML = '<tr><td colspan="5">שגיאה בטעינת הנתונים</td></tr>';
+            document.querySelector('#projectsTable tbody').innerHTML = '<tr><td colspan="4" style="color:red;">שגיאה בטעינה. ודא שעשית New Version.</td></tr>';
+            document.querySelector('#reportsTable tbody').innerHTML = '<tr><td colspan="5" style="color:red;">שגיאה בטעינה. ודא שעשית New Version.</td></tr>';
         }
     }
-
     // ==========================================
     // ניהול פרויקטים
     // ==========================================
@@ -256,7 +267,28 @@
         document.getElementById('workersContainer').innerHTML = '';
         addWorkerRow();
     }
+function loadProjectForEdit(index) {
+        const p = allProjects[index];
+        document.getElementById('projId').value = p.id;
+        if(p.date) document.getElementById('projDate').valueAsDate = new Date(p.date);
+        document.getElementById('projName').value = p.name || '';
+        document.getElementById('projLocation').value = p.location || '';
+        document.getElementById('projEntrepreneur').value = p.entrepreneur || '';
+        document.getElementById('projEngineer').value = p.engineer || '';
 
+        // שחזור העובדים (הצוות) אל תוך הטופס
+        document.getElementById('workersContainer').innerHTML = '';
+        if (p.workers && p.workers.length > 0) {
+            p.workers.forEach(w => addWorkerRow(w.name, w.role, w.email));
+        } else {
+            addWorkerRow(); // אם אין עובדים, שם שורה ריקה
+        }
+
+        document.getElementById('submitProjBtn').innerText = "עדכן פרויקט קיים 🔄";
+        // העברה אוטומטית לכרטיסיית ניהול הפרויקט
+        switchTab('formTab', document.querySelectorAll('.tab-btn')[0]); 
+    }
+    
     function addWorkerRow(name='', role='', email='') {
         const div = document.createElement('div');
         div.className = 'dynamic-row';
